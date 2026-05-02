@@ -15,4 +15,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/transactions', [TransactionController::class, 'index'])->name('api.transactions.index');
     Route::get('/transactions/{transaction}', [TransactionController::class, 'show'])->name('api.transactions.show');
+    Route::post('/transactions/{transaction}/reverse', [TransactionController::class, 'reverse'])->name('api.transactions.reverse');
 });
