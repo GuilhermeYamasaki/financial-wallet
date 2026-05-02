@@ -3,13 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Domain\Money\Actions\ReverseTransactionAction;
-use App\Domain\Money\Exceptions\InvalidTransactionReversalException;
-use App\Domain\Money\Exceptions\TransactionAlreadyReversedException;
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 
 class TransactionController extends Controller
@@ -53,13 +50,7 @@ class TransactionController extends Controller
             Response::HTTP_NOT_FOUND
         );
 
-        try {
-            $reversalTransaction = $reverseTransaction->execute($transaction);
-        } catch (TransactionAlreadyReversedException|InvalidTransactionReversalException $exception) {
-            throw ValidationException::withMessages([
-                'transaction' => [$exception->getMessage()],
-            ]);
-        }
+        $reversalTransaction = $reverseTransaction->execute($transaction);
 
         return response()->json([
             'message' => 'Transação revertida com sucesso.',
