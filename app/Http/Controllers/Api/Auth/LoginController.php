@@ -26,7 +26,6 @@ class LoginController extends Controller
         $token = $user->createToken('api')->plainTextToken;
 
         return response()->json([
-            'user' => $user->load('wallet'),
             'token' => $token,
         ]);
     }

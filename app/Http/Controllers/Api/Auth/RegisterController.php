@@ -21,11 +21,8 @@ class RegisterController extends Controller
             return $user;
         });
 
-        $token = $user->createToken('api')->plainTextToken;
-
         return response()->json([
-            'user' => $user->load('wallet'),
-            'token' => $token,
+            'message' => 'Usuário cadastrado com sucesso.',
         ], Response::HTTP_CREATED);
     }
 }
