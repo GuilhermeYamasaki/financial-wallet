@@ -14,4 +14,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/transfers', [TransferController::class, 'store'])->name('api.transfers.store');
 
     Route::get('/transactions', [TransactionController::class, 'index'])->name('api.transactions.index');
+    Route::get('/transactions/{transaction}', [TransactionController::class, 'show'])->name('api.transactions.show');
 });
