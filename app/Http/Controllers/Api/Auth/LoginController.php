@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
-    public function __invoke(LoginRequest $request): JsonResponse
+    public function store(LoginRequest $request): JsonResponse
     {
         $user = User::query()
             ->where('email', $request->validated('email'))

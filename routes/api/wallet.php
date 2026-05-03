@@ -8,9 +8,9 @@ use App\Http\Controllers\Api\WalletController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/wallet', WalletController::class)->name('api.wallet.show');
+    Route::get('/wallet', [WalletController::class, 'show'])->name('api.wallet.show');
 
-    Route::get('/users', UserController::class)->name('api.users.index');
+    Route::get('/users', [UserController::class, 'index'])->name('api.users.index');
 
     Route::post('/deposits', [DepositController::class, 'store'])->name('api.deposits.store');
 

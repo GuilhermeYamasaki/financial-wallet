@@ -8,7 +8,7 @@ use Illuminate\Http\JsonResponse;
 
 class UserController extends Controller
 {
-    public function __invoke(): JsonResponse
+    public function index(): JsonResponse
     {
         $users = User::query()
             ->orderBy('name', 'asc')

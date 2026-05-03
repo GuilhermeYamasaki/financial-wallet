@@ -11,9 +11,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RegisterController extends Controller
 {
-    public function __invoke(RegisterRequest $request): JsonResponse
+    public function store(RegisterRequest $request): JsonResponse
     {
-        $user = DB::transaction(function () use ($request) {
+        DB::transaction(function () use ($request) {
             $user = User::query()->create($request->validated());
 
             $user->wallet()->create(['balance' => 0]);

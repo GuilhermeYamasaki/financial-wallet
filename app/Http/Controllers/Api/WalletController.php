@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class WalletController extends Controller
 {
-    public function __invoke(Request $request): JsonResponse
+    public function show(Request $request): JsonResponse
     {
         return response()->json([
             'wallet' => $request->user()->wallet,
