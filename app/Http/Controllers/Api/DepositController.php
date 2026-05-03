@@ -10,9 +10,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DepositController extends Controller
 {
-    public function store(DepositRequest $request, DepositMoneyAction $depositMoney): JsonResponse
+    public function __construct(private readonly DepositMoneyAction $depositMoney) {}
+
+    public function store(DepositRequest $request): JsonResponse
     {
-        $transaction = $depositMoney->execute(
+        $transaction = $this->depositMoney->execute(
             $request->user(),
             $request->integer('amount'),
             $request->validated('description'),

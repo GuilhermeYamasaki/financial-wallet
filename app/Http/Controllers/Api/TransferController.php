@@ -11,11 +11,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class TransferController extends Controller
 {
-    public function store(TransferRequest $request, TransferMoneyAction $transferMoney): JsonResponse
+    public function __construct(private readonly TransferMoneyAction $transferMoney) {}
+
+    public function store(TransferRequest $request): JsonResponse
     {
         $recipient = User::query()->findOrFail($request->integer('recipient_id'));
 
-        $transaction = $transferMoney->execute(
+        $transaction = $this->transferMoney->execute(
             $request->user(),
             $recipient,
             $request->integer('amount'),

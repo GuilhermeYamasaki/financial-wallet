@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class TransactionController extends Controller
 {
+    public function __construct(private readonly ReverseTransactionAction $reverseTransaction) {}
+
     public function index(Request $request): JsonResponse
     {
         $wallet = $request->user()->wallet;
@@ -41,7 +43,7 @@ class TransactionController extends Controller
         ]);
     }
 
-    public function reverse(Request $request, Transaction $transaction, ReverseTransactionAction $reverseTransaction): JsonResponse
+    public function reverse(Request $request, Transaction $transaction): JsonResponse
     {
         $wallet = $request->user()->wallet;
 
@@ -50,7 +52,7 @@ class TransactionController extends Controller
             Response::HTTP_NOT_FOUND
         );
 
-        $reversalTransaction = $reverseTransaction->execute($transaction);
+        $reversalTransaction = $this->reverseTransaction->execute($transaction);
 
         return response()->json([
             'message' => 'Transação revertida com sucesso.',
