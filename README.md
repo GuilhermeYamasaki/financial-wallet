@@ -1,58 +1,91 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Financial Wallet
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Interface funcional equivalente a uma carteira financeira em que usuários podem criar conta, autenticar, depositar dinheiro, transferir saldo, receber transferências, consultar histórico e reverter operações.
 
-## About Laravel
+## Pré-requisitos
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- [Git](https://git-scm.com/)
+- [Docker Compose](https://docs.docker.com/compose/)
+- [Composer](https://getcomposer.org/)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+`Certifique-se de que você tenha todas as dependências acima instaladas antes de prosseguir.`
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Passos
 
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+#### Clonar o repositório
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/GuilhermeYamasaki/financial-wallet.git
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+#### Entrar na pasta
 
-## Contributing
+```bash
+cd financial-wallet
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+#### Baixar dependências
 
-## Code of Conduct
+```bash
+composer install
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+#### Copiar .env
 
-## Security Vulnerabilities
+```bash
+cp .env.example .env
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+#### Adicionar alias do Sail
 
-## License
+```bash
+alias sail='[ -f sail ] && sh sail || sh vendor/bin/sail'
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+#### Construir container
+
+```bash
+sail up -d
+```
+
+#### Gerar chave criptografada
+
+```bash
+sail artisan key:generate
+```
+
+#### Criar banco de dados
+
+```bash
+sail artisan migrate:fresh
+```
+
+#### Rodar os testes
+
+```bash
+sail artisan test
+```
+
+#### Abrir terminal e deixar executando
+
+```bash
+sail artisan queue:work
+```
+
+#### Acessar a aplicação
+
+```bash
+http://localhost
+```
+
+## Tecnologias
+
+- [Laravel 13.x](https://laravel.com/)
+- [Laravel Sanctum](https://laravel.com/docs/sanctum)
+- [Pint](https://laravel.com/docs/pint)
+- [Redis](https://redis.io/)
+- [PostgreSQL](https://www.postgresql.org/)
+- [Telescope](https://laravel.com/docs/telescope)
+- [Horizon](https://laravel.com/docs/horizon)
+- [Sail](https://laravel.com/docs/sail)
+- [Docker](https://www.docker.com/)
