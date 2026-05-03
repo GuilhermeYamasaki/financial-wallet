@@ -3,11 +3,14 @@
 use App\Http\Controllers\Api\DepositController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\TransferController;
+use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\WalletController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/wallet', WalletController::class)->name('api.wallet.show');
+
+    Route::get('/users', UserController::class)->name('api.users.index');
 
     Route::post('/deposits', [DepositController::class, 'store'])->name('api.deposits.store');
 
