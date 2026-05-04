@@ -1,0 +1,88 @@
+FROM php:8.4-fpm-bookworm
+
+# System and build dependencies + nginx + supervisor
+RUN apt-get update && apt-get install -y \
+        curl unzip git gnupg ca-certificates \
+        libicu-dev libzip-dev libpng-dev libjpeg-dev libfreetype6-dev libssl-dev \
+        libpq-dev \
+        nginx supervisor \
+    && rm -rf /var/lib/apt/lists/*
+
+# PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j"$(nproc)" pcntl opcache pdo pdo_pgsql intl zip gd exif ftp bcmath \
+    && pecl install redis excimer \
+    && docker-php-ext-enable redis excimer
+
+# Node.js 22 (NodeSource)
+RUN mkdir -p /etc/apt/keyrings \
+    && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+    && chmod a+r /etc/apt/keyrings/nodesource.gpg \
+    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
+    && apt-get update \
+    && apt-get install -y nodejs \
+    && npm install -g npm \
+    && rm -rf /var/lib/apt/lists/*
+
+# PHP configuration and FPM pool tuning (production - max performance)
+# pm.max_children calculado para usar 100% da RAM disponível
+# Fórmula: (RAM disponível - RAM reservada) / RAM por processo PHP
+# Configuração agressiva para máximo throughput
+RUN echo "memory_limit=512M" > /usr/local/etc/php/conf.d/custom.ini \
+    && echo "upload_max_filesize=64M" >> /usr/local/etc/php/conf.d/custom.ini \
+    && echo "post_max_size=64M" >> /usr/local/etc/php/conf.d/custom.ini \
+    && echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/custom.ini \
+    && echo "opcache.memory_consumption=256" >> /usr/local/etc/php/conf.d/custom.ini \
+    && echo "opcache.interned_strings_buffer=64" >> /usr/local/etc/php/conf.d/custom.ini \
+    && echo "opcache.max_accelerated_files=32531" >> /usr/local/etc/php/conf.d/custom.ini \
+    && echo "opcache.validate_timestamps=0" >> /usr/local/etc/php/conf.d/custom.ini \
+    && echo "opcache.save_comments=1" >> /usr/local/etc/php/conf.d/custom.ini \
+    && echo "opcache.fast_shutdown=1" >> /usr/local/etc/php/conf.d/custom.ini \
+    && echo "realpath_cache_size=4096K" >> /usr/local/etc/php/conf.d/custom.ini \
+    && echo "realpath_cache_ttl=600" >> /usr/local/etc/php/conf.d/custom.ini \
+    && { \
+             echo "[www]"; \
+             echo "pm = dynamic"; \
+             echo "pm.max_children = 100"; \
+             echo "pm.start_servers = 20"; \
+             echo "pm.min_spare_servers = 10"; \
+             echo "pm.max_spare_servers = 30"; \
+             echo "pm.max_requests = 1000"; \
+             echo "pm.process_idle_timeout = 10s"; \
+         } > /usr/local/etc/php-fpm.d/zz-override.conf
+
+# Composer
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+
+WORKDIR /var/www/html
+
+# Prepare Laravel writable directories
+RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Copy application
+COPY . .
+
+# Permissions
+RUN chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
+
+# Install PHP dependencies (production optimized)
+RUN composer install --prefer-dist --optimize-autoloader --no-interaction --no-dev
+
+# Build frontend assets
+RUN npm ci --omit=dev \
+    && npm run build \
+    && rm -rf node_modules
+
+# Nginx configuration
+COPY ./.docker/production/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY ./.docker/production/nginx/default.conf /etc/nginx/conf.d/default.conf
+
+# Supervisor configuration to run php-fpm and nginx together
+COPY ./.docker/production/supervisor/web.conf /etc/supervisor/conf.d/supervisord.conf
+
+EXPOSE 80
+
+CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
